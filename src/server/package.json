@@ -8,7 +8,8 @@
     "build": "tsc",
     "dev": "ts-node-dev server.ts",
     "lint": "eslint . --ext .ts",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
   },
   "keywords": [],
   "author": "",
