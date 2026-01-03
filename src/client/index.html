@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DevOps City App</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+    </style>
+</head>
+<body>
+    <h1>City Explorer</h1>
+    <button onclick="fetchCities()">Show Cities</button>
+    <ul id="city-list"></ul>
+
+    <script>
+        async function fetchCities() {
+            const list = document.getElementById('city-list');
+            list.innerHTML = '<li>Loading...</li>';
+
+            try {
+                const response = await fetch('/api/cities'); 
+                
+                if (!response.ok) throw new Error('Backend not reachable');
+
+                const cities = await response.json();
+                list.innerHTML = ''; 
+
+                cities.forEach(c => {
+                    const li = document.createElement('li');
+                    li.style.padding = "5px";
+                    li.style.borderBottom = "1px solid #ddd";
+                    li.innerText = `${c.name} - Population: ${c.population.toLocaleString()}`;
+                    list.appendChild(li);
+                });
+            } catch (err) {
+                list.innerHTML = `<li style="color:red">Error: ${err.message}</li>`;
+                console.error("Connection error:", err);
+            }
+        }
+    </script>
+</body>
+</html>
