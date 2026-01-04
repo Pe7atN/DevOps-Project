@@ -33,6 +33,10 @@ jobs:
         run: npm run lint
         working-directory: src/server
 
+      - name: Run Unit Tests
+        run: npm test
+        working-directory: src/server
+
   build-images:
     needs: quality-check
     runs-on: ubuntu-latest
