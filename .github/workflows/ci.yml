@@ -37,6 +37,14 @@ jobs:
         run: npm test
         working-directory: src/server
 
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: javascript-typescript
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
   build-images:
     needs: quality-check
     runs-on: ubuntu-latest
@@ -47,9 +55,18 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build Backend Image
-        run: |
-          docker build -t devops-backend ./src/server
+        run: docker build -t devops-backend:${{ github.sha }} ./src/server
+
+      - name: Run Trivy vulnerability scanner (Backend)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'devops-backend:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
 
       - name: Build Frontend Image
         run: |
           docker build -t devops-frontend ./src/client
+
