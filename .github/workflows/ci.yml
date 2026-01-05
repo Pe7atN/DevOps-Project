@@ -111,30 +111,29 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:${{ github.sha }}
 
     deploy-to-kubernetes:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
+      needs: build-and-push
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
 
-      - name: Set Kubernetes Context
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
+        - name: Set Kubernetes Context
+          uses: azure/k8s-set-context@v3
+          with:
+            method: kubeconfig
+            kubeconfig: ${{ secrets.KUBECONFIG }}
 
-      - name: Validate Kubernetes Manifests
-        run: |
-          kubectl apply --dry-run=client -f k8s/
+        - name: Validate Kubernetes Manifests
+          run: |
+            kubectl apply --dry-run=client -f k8s/
 
-      - name: Deploy to Cluster
-        run: |
-          kubectl apply -f k8s/secrets.yaml
-          kubectl apply -f k8s/db-service.yaml
-          kubectl apply -f k8s/db-deployment.yaml
+        - name: Deploy to Cluster
+          run: |
+            kubectl apply -f k8s/secrets.yaml
+            kubectl apply -f k8s/db-service.yaml
+            kubectl apply -f k8s/db-deployment.yaml
           
-          kubectl set image deployment/backend-deployment backend=${{ secrets.DOCKERHUB_USERNAME }}/devops-backend:${{ github.sha }}
-          kubectl set image deployment/frontend-deployment frontend=${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:${{ github.sha }}
+            kubectl set image deployment/backend-deployment backend=${{ secrets.DOCKERHUB_USERNAME }}/devops-backend:${{ github.sha }}
+            kubectl set image deployment/frontend-deployment frontend=${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:${{ github.sha }}
           
-      - name: Verify Deployment
-        run: kubectl rollout status deployment/backend-deployment
-
+        - name: Verify Deployment
+          run: kubectl rollout status deployment/backend-deployment
