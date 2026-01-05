@@ -1,41 +1,53 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: postgres
+  name: backend-service
 spec:
   selector:
     matchLabels:
-      app: postgres
+      app: backend
   template:
     metadata:
       labels:
-        app: postgres
+        app: backend
     spec:
       containers:
-      - name: postgres
-        image: postgres:15-alpine
-        env:
-        - name: POSTGRES_DB
-          valueFrom: { configMapKeyRef: { name: db-config, key: DB_NAME } }
-        - name: POSTGRES_PASSWORD
-          valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
+      - name: backend
+        image: pe7atn/devops-backend:latest 
         ports:
-        - containerPort: 5432
-        volumeMounts:
-        - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
-      volumes:
-      - name: postgres-storage
-        persistentVolumeClaim:
-          claimName: postgres-pvc
+        - containerPort: 3000
+        env:
+        - name: DB_HOST
+          valueFrom: { configMapKeyRef: { name: db-config, key: DB_HOST } }
+        - name: DB_USER
+          valueFrom: { configMapKeyRef: { name: db-config, key: DB_USER } }
+        - name: DB_NAME
+          valueFrom: { configMapKeyRef: { name: db-config, key: DB_NAME } }
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_PASSWORD
+          valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
+        livenessProbe:
+          httpGet:
+            path: /api/cities
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /api/cities
+            port: 3000
+          initialDelaySeconds: 20
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

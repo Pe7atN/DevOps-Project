@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: Pe7atN/devops-frontend:latest
+        image: pe7atn/devops-frontend:latest
         ports:
         - containerPort: 80
 ---
