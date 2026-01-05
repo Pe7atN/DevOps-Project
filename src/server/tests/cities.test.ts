@@ -12,24 +12,25 @@ const pool = new Pool({
 });
 
 describe('Cities Database Integration Tests', () => {
-  
   afterAll(async () => {
     await pool.end();
   });
 
   test('The database should contain the correct initial cities', async () => {
-    const res = await pool.query('SELECT name, population FROM cities ORDER BY population DESC');
-    
+    const res = await pool.query(
+      'SELECT name, population FROM cities ORDER BY population DESC',
+    );
+
     expect(res.rows[0].name).toBe('Sofia');
     expect(res.rows.length).toBeGreaterThanOrEqual(3);
   });
 
   test('The total population from the database should be calculated correctly', async () => {
     const res = await pool.query('SELECT population FROM cities');
-    
+
     const totalPopulation = res.rows.reduce(
       (sum, row) => sum + parseInt(row.population),
-      0
+      0,
     );
 
     const expectedSum = 2258000;
