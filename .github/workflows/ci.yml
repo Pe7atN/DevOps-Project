@@ -125,7 +125,6 @@ jobs:
 
       - name: Deploy to Cluster
         run: |
-          # These commands now run against the temporary Kind cluster
           kubectl apply -f k8s/secrets.yaml
           kubectl apply -f k8s/db-deployment.yaml
           kubectl apply -f k8s/db-service.yaml
