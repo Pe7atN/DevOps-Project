@@ -125,11 +125,18 @@ jobs:
 
       - name: Deploy to Cluster
         run: |
+          kubectl create configmap db-init-scripts --from-file=src/db/
+          
           kubectl apply -f k8s/db-config.yaml
           kubectl apply -f k8s/secrets.yaml
+          
           kubectl apply -f k8s/db-deployment.yaml
           kubectl apply -f k8s/db-service.yaml
+          
+          kubectl wait --for=condition=ready pod -l app=postgres --timeout=90s
+          
           kubectl apply -f k8s/backend-deployment.yaml
           kubectl apply -f k8s/frontend-deployment.yaml
           
-          kubectl rollout status deployment/backend-deployment --timeout=60s
+          kubectl rollout status deployment/backend-service --timeout=90s
+          kubectl rollout status deployment/frontend-deployment --timeout=90s

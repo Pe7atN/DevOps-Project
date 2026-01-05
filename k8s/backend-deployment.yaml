@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: backend-service
 spec:
   selector:
     matchLabels:
@@ -31,13 +31,13 @@ spec:
           httpGet:
             path: /api/cities
             port: 3000
-          initialDelaySeconds: 15
+          initialDelaySeconds: 30
           periodSeconds: 20
         readinessProbe:
           httpGet:
             path: /api/cities
             port: 3000
-          initialDelaySeconds: 5
+          initialDelaySeconds: 20
           periodSeconds: 10
 ---
 apiVersion: v1
