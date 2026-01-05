@@ -1,12 +1,14 @@
 services:
   db:
     image: postgres:15-alpine
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - ./src/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/db:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 5s
@@ -15,6 +17,8 @@ services:
 
   backend:
     build: ./src/server
+    ports:
+      - "3000:3000"
     environment:
       DB_HOST: db
       DB_USER: ${DB_USER}

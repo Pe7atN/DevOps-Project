@@ -1,20 +1,39 @@
-const mockCities = [
-  { name: 'Sofia', population: 1236000 },
-  { name: 'Plovdiv', population: 343000 },
-  { name: 'Varna', population: 335000 },
-];
+import { Pool } from 'pg';
+import * as dotenv from 'dotenv';
 
-test('The first city in the list should be Sofia', () => {
-  expect(mockCities[0].name).toBe('Sofia');
+dotenv.config();
+
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
-test('The total population should be calculated correctly', () => {
-  const totalPopulation = mockCities.reduce(
-    (sum, city) => sum + city.population,
-    0,
-  );
+describe('Cities Database Integration Tests', () => {
+  
+  afterAll(async () => {
+    await pool.end();
+  });
 
-  //   const expectedSumWithIntentionalError = 1914000 + 1;
+  test('The database should contain the correct initial cities', async () => {
+    const res = await pool.query('SELECT name, population FROM cities ORDER BY population DESC');
+    
+    expect(res.rows[0].name).toBe('Sofia');
+    expect(res.rows.length).toBeGreaterThanOrEqual(3);
+  });
 
-  expect(totalPopulation).toBe(totalPopulation);
+  test('The total population from the database should be calculated correctly', async () => {
+    const res = await pool.query('SELECT population FROM cities');
+    
+    const totalPopulation = res.rows.reduce(
+      (sum, row) => sum + parseInt(row.population),
+      0
+    );
+
+    const expectedSum = 2258000;
+
+    expect(totalPopulation).toBe(expectedSum);
+  });
 });
