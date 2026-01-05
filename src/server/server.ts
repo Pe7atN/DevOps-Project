@@ -24,3 +24,5 @@ app.get('/api/cities', async (req, res) => {
     res.status(500).json({ error: 'Database connection error' });
   }
 });
+
+app.listen(3000);
