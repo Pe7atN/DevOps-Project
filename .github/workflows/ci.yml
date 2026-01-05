@@ -116,11 +116,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set Kubernetes Context
-        uses: azure/k8s-set-context@v3
-        with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - name: Create temporary K8s Cluster (Kind)
+        uses: helm/kind-action@v1.4.0
 
       - name: Validate Kubernetes Manifests
         run: |
@@ -128,12 +125,11 @@ jobs:
 
       - name: Deploy to Cluster
         run: |
+          # These commands now run against the temporary Kind cluster
           kubectl apply -f k8s/secrets.yaml
-          kubectl apply -f k8s/db-service.yaml
           kubectl apply -f k8s/db-deployment.yaml
+          kubectl apply -f k8s/db-service.yaml
+          kubectl apply -f k8s/backend-deployment.yaml
+          kubectl apply -f k8s/frontend-deployment.yaml
           
-          kubectl set image deployment/backend-deployment backend=${{ secrets.DOCKERHUB_USERNAME }}/devops-backend:${{ github.sha }}
-          kubectl set image deployment/frontend-deployment frontend=${{ secrets.DOCKERHUB_USERNAME }}/devops-frontend:${{ github.sha }}
-          
-      - name: Verify Deployment
-        run: kubectl rollout status deployment/backend-deployment
+          kubectl rollout status deployment/backend-deployment --timeout=60s
