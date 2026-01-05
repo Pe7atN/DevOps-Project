@@ -1,6 +1,7 @@
 #!/bin/bash
 echo "Starting Kubernetes"
 
+kubectl apply -f k8s/db-config.yaml
 kubectl apply -f k8s/secrets.yaml
 
 kubectl apply -f k8s/db-deployment.yaml

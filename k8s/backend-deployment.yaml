@@ -13,11 +13,10 @@ spec:
     spec:
       containers:
       - name: backend
-        image: Pe7atN/devops-backend:latest 
+        image: pe7atn/devops-backend:latest 
         ports:
         - containerPort: 3000
         env:
-        # Pulling from ConfigMap (db-config)
         - name: DB_HOST
           valueFrom: { configMapKeyRef: { name: db-config, key: DB_HOST } }
         - name: DB_USER
@@ -26,7 +25,6 @@ spec:
           valueFrom: { configMapKeyRef: { name: db-config, key: DB_NAME } }
         - name: DB_PORT
           value: "5432"
-        # Pulling from Secret (db-secret)
         - name: DB_PASSWORD
           valueFrom: { secretKeyRef: { name: db-secret, key: DB_PASSWORD } }
         livenessProbe:
