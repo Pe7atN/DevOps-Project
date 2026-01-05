@@ -51,7 +51,7 @@ jobs:
           
           for file in $(ls src/db/*.sql | sort); do
             echo "Applying $file..."
-            PGPASSWORD=password psql -h localhost -U postgres -d db -f "$file"
+            PGPASSWORD=password psql -h localhost -U postgres -d city_db -f "$file"
           done
 
       - name: Run Prettier Check
